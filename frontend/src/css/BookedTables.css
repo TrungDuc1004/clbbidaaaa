@@ -1,0 +1,165 @@
+/* === Định dạng container chính === */
+.booked-tables-container {
+    padding: 30px 60px;
+    text-align: center;
+}
+
+/* Responsive: Tablet & Mobile */
+@media only screen and (max-width: 1024px) {
+    .booked-tables-container {
+        padding: 20px;
+    }
+}
+
+@media only screen and (max-width: 740px) {
+    .booked-table-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .table-item {
+        width: 100%; /* Chiếm toàn bộ chiều rộng trên mobile */
+    }
+}
+
+/* === Danh sách bàn đã đặt === */
+.booked-table-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* === Card hiển thị mỗi bàn === */
+.table-item {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    transition: transform 0.3s ease;
+    width: calc(33.33% - 20px); /* Chia đều thành 3 cột */
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.table-item:hover {
+    transform: translateY(-5px);
+}
+
+/* === Hình ảnh bàn === */
+.table-image {
+    width: 100%;
+    border-radius: 8px;
+    height: 180px;
+    object-fit: cover;
+}
+
+/* === Tiêu đề & thông tin bàn === */
+h3 {
+    font-size: 18px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+p {
+    font-size: 16px;
+    color: #555;
+    text-align: center;
+}
+
+/* === Các nút chức năng === */
+.booking-actions {
+    display: flex;
+    flex-direction: column; /* Sắp xếp dọc */
+    align-items: center;
+    gap: 10px; /* Khoảng cách giữa các nút */
+    width: 100%;
+}
+
+.booking-actions .edit-btn {
+    width: 120px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.booking-actions .edit-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Nhóm hai nút trên cùng một hàng */
+.booking-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.booking-buttons button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    width: 120px;
+    margin-top: 15px;
+}
+
+.cancel-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
+
+.order-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.order-btn:hover {
+    background-color: #218838;
+}
+
+/* === Input === */
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* === Responsive Design === */
+@media only screen and (max-width: 1024px) {
+    .table-item {
+        width: 45%;
+    }
+}
+
+@media only screen and (max-width: 740px) {
+    .table-item {
+        width: 100%;
+    }
+
+    .booking-buttons {
+        flex-direction: column; /* Trên mobile, các nút sẽ xếp dọc */
+        gap: 10px;
+    }
+}
