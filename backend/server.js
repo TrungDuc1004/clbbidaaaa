@@ -47,20 +47,6 @@ app.use('/allproduct', allProductRoutes);
 app.use('/alltable', allTableRoutes);
 app.use('/allaccount', allAccountRoutes);
 
-app.post('/api/login', (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: "Vui lòng nhập email và mật khẩu" });
-    }
-
-    res.json({ message: "Đăng nhập thành công", email });
-});
-
-
-app.get("/", (req, res) => {
-    res.send("Server đang chạy...");
-});
 
 //
 app.listen(PORT, () => {

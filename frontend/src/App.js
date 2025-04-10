@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/pages/Navbar';
 import Footer from './components/pages/Footer';
 import ToastList from './components/ToastList';
@@ -33,7 +33,7 @@ import AllBookings from './components/admin/AllBookings';
 
 function App() {
     return (
-        <Router>
+        <>
             <Toaster position='top-right' />
             <div>
                 {/* Hiển thị thông báo */}
@@ -46,15 +46,7 @@ function App() {
 
                 {/* Routes */}
                 <Routes>
-                    {/* Trang chính */}
-                    <Route path="/" element={
-                        <>
-                            <Home />
-                            {/* <Bestsellerproduct /> */}
-                        </>
-                    } />
-                    
-                    {/* Các trang khác */}
+                    <Route path="/" element={<><Home /></>} />
                     <Route path="/menu" element={<ProductList />} />
                     <Route path="/table" element={<TableList />} />
                     <Route path="/product/:slug" element={<ProductDetail />} />
@@ -64,14 +56,14 @@ function App() {
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/order" element={<Order />} />
-                    <Route path="/booked-tables" element={<BookedTables/>} />
+                    <Route path="/booked-tables" element={<BookedTables />} />
 
                     {/* Quản trị */}
                     <Route path="/manager/admin" element={<ManagerSystem />} />
-                    <Route path="/manager/admin/products" element={<AllProducts />}/>
-                    <Route path="/manager/admin/tables" element={<AllTables />}/>
-                    <Route path="/manager/admin/orders" element={<AllOrders />}/>
-                    <Route path="/manager/admin/bookings" element={<AllBookings/>} />
+                    <Route path="/manager/admin/products" element={<AllProducts />} />
+                    <Route path="/manager/admin/tables" element={<AllTables />} />
+                    <Route path="/manager/admin/orders" element={<AllOrders />} />
+                    <Route path="/manager/admin/bookings" element={<AllBookings />} />
                     <Route path="/create" element={<CreateProduct />} />
                     <Route path="/createTable" element={<CreateTable />} />
                     <Route path="/update/:id/edit" element={<UpdateProduct />} />
@@ -83,8 +75,9 @@ function App() {
                 {/* Footer */}
                 <Footer />
             </div>
-        </Router>
+        </>
     );
 }
+
 
 export default App;

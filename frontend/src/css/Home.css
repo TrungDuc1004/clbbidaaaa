@@ -53,20 +53,19 @@
     align-items: center;
 }
 
-.img-background {
+.image-container {
     width: 100%;
-    background: linear-gradient(rgba(0, 0, 0, 0.450), rgba(0, 0, 0, 0.500)),
-    url('../../public/img/bida.jpg') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 600px;
-  color: rgb(215, 209, 209);
-  font-size: 32px;
-  font-weight: 500;
-  padding: 0 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 600px;
+    color: rgb(215, 209, 209);
+    font-size: 32px;
+    font-weight: 500;
+    padding: 0 80px;
+    transition: opacity 0.5s ease-in-out;
 }
+
 .home_image{
     display: flex;
     justify-content: center;
@@ -93,16 +92,14 @@
     border-radius: 5px;
     padding: 12px 30px;
     margin-top: 25px;
-    background-color: #0a1d37;
     color: white;
     border: none;
     transition: transform 0.3s ease;
 }
 
-.home button:hover {
-    cursor: pointer;
-    background-color: #0758c9;
-    transform: scale(1.07);
+.home .change-image-btn:hover {
+    background-color: transparent ;  /* Không có màu nền */
+    color: inherit ;                 /* Giữ nguyên màu chữ */
 }
 
 .commit-sign {
@@ -176,4 +173,94 @@
 .commit-sign_yellow-truck {
     font-size: 30px;
     padding-right: 25px;
+}
+
+
+/* dsaddsad */
+.introduce-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 320px;
+    border: 1px solid #d1d5db;
+    position: relative;
+}
+
+@media (min-width: 640px) {
+    .introduce-container {
+        flex-direction: row;
+    }
+}
+
+.text-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    background-color: #ffedd5;
+}
+
+@media (min-width: 640px) {
+    .text-container {
+        width: 33.3333%;
+        padding: 0;
+    }
+}
+
+.text-content {
+    color: #414141;
+    padding-left: 40px;
+}
+
+.line {
+    width: 32px;
+    height: 2px;
+    background-color: #414141;
+}
+
+.order-now {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    .order-now {
+        font-size: 16px;
+    }
+}
+
+.image-container {
+    width: 100%;
+    transition: opacity 0.5s ease-in-out;
+}
+
+@media (min-width: 640px) {
+    .image-container {
+        width: 66.6667%;
+    }
+}
+
+.image-fade {
+    opacity: 0;
+}
+
+.image-visible {
+    opacity: 1;
+}
+
+.change-image-btn {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background: transparent;
+    color: white;
+    font-size: 24px;
+}
+
+.icon {
+    font-size: 24px;
+    position: absolute;
+    right: 16px;
+    color: #d1d5db;
 }

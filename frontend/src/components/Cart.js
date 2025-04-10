@@ -22,7 +22,7 @@ function Cart() {
 
     const fetchBookedTables = async () => {
         try {
-            const response = await api.get('/bookings/list');
+            const response = await api.get('/cart');
             setBookedTables(response.data || []);
         } catch (error) {
             console.error('Lỗi khi lấy bàn đã đặt:', error);
@@ -40,7 +40,7 @@ function Cart() {
 
     const addToCart = async (tableId, productId) => {
         try {
-            await api.post('/cart/add-item', {
+            await api.post('/bookings/add-item', {
                 tableId,
                 productId,
                 quantity: 1
@@ -53,11 +53,17 @@ function Cart() {
         }
     };
 
+    const getTotalFoodPrice = (items) => {
+        if (!items || !Array.isArray(items)) return 0;
+        return items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
+    };
+
     return (
         <div className="cart-container">
-            <div className="img-extra2">   
+            <div className="img-extra2">
                 <h1 style={{ textAlign: "center", color: "white" }}>Danh sách bàn đã đặt</h1>
             </div>
+
             {bookedTables.length === 0 ? (
                 <p>Bạn chưa đặt bàn nào.</p>
             ) : (
@@ -65,22 +71,27 @@ function Cart() {
                     {bookedTables.map((booking, index) => (
                         <div key={booking._id} className="cart-item">
                             <div className="cart-info">
-                                <img src={booking.tables[0].image} alt={booking.tables?.[0]?.tableId.name} className="cart-image" />
+                                <img src={booking.image} alt={booking.tableName} className="cart-image" />
                                 <div className="cart-details">
-                                    <span className="cart-number">{index + 1}. {booking.tables?.[0]?.tableId.name} - {new Date(booking.tables[0].time).toLocaleString()}</span>
-                                    <span className="cart-location">Vị trí: {booking.tables[0].location || 'Chưa xác định'}</span>
+                                    <span className="cart-number">{index + 1}. {booking.tableName} - {new Date(booking.time).toLocaleString()}</span>
+                                    <span className="cart-location">Vị trí: {booking.location || 'Chưa xác định'}</span>
                                     <span className="cart-total">Giá bàn: {booking.totalPrice || 0} đ/1h</span>
                                 </div>
                                 <div className="booking-buttons" style={{ textAlign: "right" }}>
-                                    <button className="order-btn" onClick={() => addToCart(booking.tables[0].tableId, product[0]?._id)}>Order thêm {product[0]?.name}</button>
+                                    <Link to={`/menu?table=${booking.tableName}`}>
+                                        <button className="order-btn" onClick={() => addToCart(booking.tableId, product[0]?._id)}>
+                                            Order thêm {product[0]?.name}
+                                        </button>
+                                    </Link>
                                     <button className="pay-btn">Thanh toán</button>
                                 </div>
                             </div>
-                            {booking.tables[0].orderedItems && booking.tables[0].orderedItems.length > 0 && (
+
+                            {booking.orderedItems && booking.orderedItems.length > 0 && (
                                 <div className="ordered-items">
                                     <h4>Đồ ăn kèm:</h4>
                                     <div className="food-list">
-                                        {booking.tables[0].orderedItems.map((item, index) => (
+                                        {booking.orderedItems.map((item, index) => (
                                             <div key={index} className="food-item">
                                                 <span>{item.name}</span>
                                                 <span className="food-quantity">x{item.quantity}</span>
@@ -91,10 +102,21 @@ function Cart() {
                             )}
                         </div>
                     ))}
+
                 </div>
             )}
+
             <div className="grand-total">
-                <span>Tổng tiền: {bookedTables.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0)} đ</span>
+                <span>
+                    Tổng tiền: {
+                        bookedTables.reduce((sum, booking) => {
+                            const table = booking.tables?.[0];
+                            const tablePrice = booking.totalPrice || 0;
+                            const foodPrice = getTotalFoodPrice(table?.orderedItems);
+                            return sum + tablePrice + foodPrice;
+                        }, 0)
+                    } đ
+                </span>
                 <button className="pay-btn">Thanh toán tất cả</button>
             </div>
         </div>

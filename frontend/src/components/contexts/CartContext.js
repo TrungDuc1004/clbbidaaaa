@@ -1,78 +1,100 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import api from "../../api/Axios";
 import { toast } from "sonner";
 
 const CartContext = createContext();
 
 function CartProvider({ children }) {
+    const [cart, setCart] = useState([]);
     const [cartCount, setCartCount] = useState(0);
+    const [tableName, setTableName] = useState(null);
+    const location = useLocation(); // phải gọi hook ở đầu component
 
-    // Lấy số lượng sản phẩm trong giỏ hàng khi load trang
+    useEffect(() => {
+        const tableParam = new URLSearchParams(location.search).get("table");
+        console.log("🔍 tableParam from URL:", tableParam);
+        if (tableParam) {
+            setTableName(tableParam);
+        }
+    }, [location.search]);
+
     useEffect(() => {
         const token = localStorage.getItem("token");
-    
-        if (token) {
-            api.get("/cart", { headers: { Authorization: `Bearer ${token}` } })
-                .then((res) => {
-                    setCartCount(res.data.reduce((total, item) => total + item.quantity, 0));
-
-                })
-                .catch(() => {
-                    toast.error("Không thể tải giỏ hàng!");
-                });
+        if (token && tableName) {
+            fetchCart(tableName);
         }
-    }, []);
+    }, [tableName]);
 
+    const fetchCart = async (tableId) => {
+        try {
+            const res = await api.get(`/cart?tableId=${tableId}`);
+            const cartItems = res.data;
+    
+            if (!Array.isArray(cartItems)) {
+                toast.error("Dữ liệu giỏ hàng không hợp lệ!");
+                return;
+            }
+    
+            setCart(cartItems);
+            const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
+            setCartCount(totalQuantity);
+        } catch (err) {
+            console.error("Lỗi khi tải giỏ hàng", err);
+            toast.error("Không thể tải giỏ hàng!");
+        }
+    };
+    
 
     const handleAddToCart = (productId) => {
         const token = localStorage.getItem("token");
-        const selectedTableName = localStorage.getItem("selectedTableName")
+
         if (!token) {
             toast.error("Hãy đăng nhập trước!");
             return;
         }
-        if (!selectedTableName) {
-            toast.error("Bạn cần chọn bàn trước khi thêm món ăn!");
-            return
+        if (!tableName) {
+            toast.error("Vui lòng chọn bàn trước khi thêm món!");
+            return;
         }
-    
-        api.post(`/cart/${productId}`, {tableName: selectedTableName}, )
-            .then((res) => {
-                // Lấy giỏ hàng mới sau khi thêm
-                api.get("/cart")
-                    .then((cartRes) => {
-                        setCartCount(cartRes.data.reduce((total, item) => total + item.quantity, 0));
-                    });
-                toast.success("Sản phẩm đã được thêm!");
+
+        api.post("/cart/add-item", {
+            tableId: tableName,
+            productId,
+            quantity: 1
+        })
+            .then(() => {
+                fetchCart(tableName);
+                toast.success("Sản phẩm đã được thêm vào bàn!");
             })
             .catch(() => {
                 toast.error("Lỗi khi thêm sản phẩm!");
             });
     };
-    
+
     const handleRemoveFromCart = (productId) => {
         const token = localStorage.getItem("token");
         if (!token) {
-            toast("Hãy đăng nhập trước!");
+            toast.error("Hãy đăng nhập trước!");
             return;
         }
-    
-        api.delete(`/cart/${productId}`)
+        if (!tableName) {
+            toast.error("Vui lòng chọn bàn trước khi xóa món!");
+            return;
+        }
+
+        api.delete(`/cart/remove-item`, { data: { tableId: tableName, productId } })
             .then(() => {
-                // Lấy giỏ hàng mới sau khi xóa
-                api.get("/cart", { headers: { Authorization: `Bearer ${token}` } })
-                    .then((cartRes) => {
-                        setCartCount(cartRes.data.reduce((total, item) => total + item.quantity, 0));
-                    });
-                toast({ title: "Sản phẩm đã được xóa!", type: "success" });
+                fetchCart(tableName);
+                toast.success("Sản phẩm đã được xóa!");
             })
             .catch(() => {
-                toast({ title: "Lỗi khi xóa sản phẩm!", type: "warning" });
+                toast.error("Lỗi khi xóa sản phẩm!");
             });
     };
-    
+
     return (
-        <CartContext.Provider value={{ handleAddToCart, handleRemoveFromCart, cartCount, setCartCount }}>
+        <CartContext.Provider value={{ handleAddToCart, handleRemoveFromCart, cart, cartCount, tableName }}>
             {children}
         </CartContext.Provider>
     );

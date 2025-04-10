@@ -6,9 +6,9 @@ const Schema = mongoose.Schema;
 
 const ProductCart = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
-    productId: { type: String, require: true },
     tableId: { type: mongoose.Schema.Types.ObjectId, ref: 'Table', required: true },
-    tablename: {type: String, require: true},
+    tableName: {type: String, require: true},
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
     name: { type: String, require: true },
     image: { type: String, maxLength: 255 },
     newPrice: { type: Number, required: true },

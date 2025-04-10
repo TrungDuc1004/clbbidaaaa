@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './css/index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './components/contexts/AuthContext';
 import { ProfileProvider } from './components/contexts/ProfileContext';
 import { ToastProvider } from './components/contexts/ToastContext';
@@ -12,17 +13,19 @@ import { ModalProvider } from './components/contexts/ModalContext';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <ProfileProvider>
-        <ToastProvider>
-          <CartProvider>
-            <ModalProvider>
-              <App />
-            </ModalProvider>
-          </CartProvider>
-        </ToastProvider>
-      </ProfileProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ProfileProvider>
+          <ToastProvider>
+            <CartProvider>
+              <ModalProvider>
+                <App />
+              </ModalProvider>
+            </CartProvider>
+          </ToastProvider>
+        </ProfileProvider>s
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

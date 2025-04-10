@@ -1,30 +1,37 @@
 const Product = require('../../models/Product');
 const ProductCart = require('../../models/ProductCart');
 const Table = require('../../models/Table');
+const Booking = require('../../models/Booking');
 
 // 🛒 Thêm sản phẩm vào giỏ hàng (POST /bookings/add-item)
+
 exports.addToCart = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user?.userId;
         const { tableId, productId, quantity = 1 } = req.body;
 
+        if (!userId) {
+            return res.status(400).json({ message: 'Không có userId!' });
+        }
         if (!tableId || !productId) {
             return res.status(400).json({ message: 'Thiếu thông tin bàn hoặc sản phẩm!' });
         }
 
-        // Tìm sản phẩm
+        // Kiểm tra bàn & sản phẩm có tồn tại
         const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
-        }
-
-        // Tìm bàn
         const table = await Table.findById(tableId);
-        if (!table) {
-            return res.status(404).json({ message: 'Không tìm thấy bàn!' });
+
+        if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+        if (!table) return res.status(404).json({ message: 'Không tìm thấy bàn!' });
+
+        // 👉 Kiểm tra người dùng đã đặt bàn chưa
+        const existingBooking = await Booking.findOne({ userId, tableId, status: "booked" });
+
+        if (!existingBooking) {
+            return res.status(403).json({ message: 'Bạn chưa đặt bàn này hoặc bàn chưa được xác nhận!' });
         }
 
-        // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+        // 👉 Nếu đã đặt bàn, xử lý thêm sản phẩm
         let cartItem = await ProductCart.findOne({ userId, productId, tableId });
 
         if (cartItem) {
@@ -34,7 +41,7 @@ exports.addToCart = async (req, res) => {
             cartItem = new ProductCart({
                 userId,
                 tableId,
-                tableName: table.name, // Lưu tên bàn để dễ hiển thị
+                tableName: table.name,
                 productId,
                 name: product.name,
                 image: product.image,
@@ -44,46 +51,48 @@ exports.addToCart = async (req, res) => {
             await cartItem.save();
         }
 
-        return res.status(200).json({ message: 'Thêm sản phẩm vào bàn thành công!' });
+        return res.status(200).json({ message: 'Thêm sản phẩm thành công!' });
     } catch (error) {
-        console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
-        return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại!' });
+        console.error('Lỗi khi thêm vào giỏ hàng:', error);
+        return res.status(500).json({ message: 'Lỗi server!' });
     }
 };
+
 
 // 🛒 Lấy danh sách sản phẩm trong bàn (GET /bookings/cart)
 exports.getCart = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user?.userId;
+
         if (!userId) {
-            return res.status(400).json({ message: 'Không tìm thấy userId!' });
+            return res.status(401).json({ message: 'Bạn chưa đăng nhập!' });
         }
 
-        // Lấy danh sách sản phẩm trong giỏ hàng theo userId
-        const cartItems = await ProductCart.find({ userId }).populate('tableId', 'name location');
+        // Lấy danh sách bookings của user đã được xác nhận
+        const bookings = await Booking.find({ userId, status: 'booked' })
+            .populate('tables.tableId'); // Lấy thông tin bàn (name, image...)
 
-        // Nhóm sản phẩm theo từng bàn
-        const groupedCart = cartItems.reduce((acc, item) => {
-            const tableKey = item.tableId._id;
-            if (!acc[tableKey]) {
-                acc[tableKey] = {
-                    tableId: item.tableId._id,
-                    tableName: item.tableId.name,
-                    location: item.tableId.location,
-                    products: []
-                };
-            }
-            acc[tableKey].products.push(item);
-            return acc;
-        }, {});
+        const formatted = bookings.map(booking => {
+            const table = booking.tables[0]; // chỉ xử lý 1 bàn mỗi booking
+            return {
+                _id: booking._id,
+                time: table.time,
+                location: table.location,
+                totalPrice: booking.totalPrice,
+                tableId: table.tableId?._id,
+                tableName: table.tableId?.name,
+                image: table.tableId?.image,
+                orderedItems: table.orderedItems || []
+            };
+        });
 
-        const cartByTables = Object.values(groupedCart);
-        return res.json(cartByTables);
+        return res.json(formatted);
     } catch (error) {
-        console.error('Lỗi khi lấy giỏ hàng:', error);
-        return res.status(500).json({ message: 'Lỗi server, vui lòng thử lại!' });
+        console.error("Lỗi khi lấy danh sách bàn:", error);
+        return res.status(500).json({ message: "Lỗi server!" });
     }
 };
+
 
 // ❌ Xóa sản phẩm khỏi bàn (DELETE /bookings/cart/:id)
 exports.deleteCartItem = async (req, res) => {
